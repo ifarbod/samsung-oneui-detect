@@ -14,7 +14,7 @@ import java.io.InputStreamReader
 
 class MainActivity : Activity() {
     companion object {
-        const val TAG = "Zargun"
+        private const val TAG = "Zargun"
         private const val TEXT_SIZE = 22.0f
     }
 
@@ -38,27 +38,44 @@ class MainActivity : Activity() {
     private fun printInfo() {
         textView.text = null
 
-        val release = getProp("ro.build.version.release_or_codename")
-        val sdk = getProp("ro.build.version.sdk")
+        // ro.build.version.release_or_preview_display (13+)
+        // ro.build.version.release_or_codename (11+)
+        // check codename, if REL => stable
+        val release = if (getProp("ro.build.version.release_or_preview_display").isNullOrBlank())
+        {
+            if (getProp("ro.build.version.release_or_codename").isNullOrBlank())
+            {
+                getProp("ro.build.version.release")
+            }
+            else
+            {
+                getProp("ro.build.version.release_or_codename")
+            }
+        }
+        else
+        {
+            getProp("ro.build.version.release_or_preview_display")
+        }
+        val sdk = getProp("ro.build.version.sdk")?.ifBlank { "?" }
 
-        textView.append("Raw data\n")
+        textView.append("Raw data\n\n")
         textView.append("Release: $release, SDK: $sdk\n")
-        textView.append("\nSecurity patch:")
-        textView.append(getProp("ro.build.version.security_patch"))
+        textView.append("\nSecurity patch: ")
+        textView.append(getProp("ro.build.version.security_patch")?.ifBlank { "?" })
         textView.append("\nSEM: ")
-        textView.append(getProp("ro.build.version.sem"))
+        textView.append(getProp("ro.build.version.sem")?.ifBlank { "?" })
         textView.append("\nSEP: ")
-        textView.append(getProp("ro.build.version.sep"))
+        textView.append(getProp("ro.build.version.sep")?.ifBlank { "?" })
         textView.append("\nOne UI: ")
-        textView.append(getProp("ro.build.version.oneui"))
+        textView.append(getProp("ro.build.version.oneui")?.ifBlank { "?" })
         textView.append("\nSEP category: ")
-        textView.append(getFloatingFeature("SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY"))
+        textView.append(getFloatingFeature("SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY")?.ifBlank { "?" })
         textView.append("\nBranding name: ")
-        textView.append(getFloatingFeature("SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME"))
+        textView.append(getFloatingFeature("SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME")?.ifBlank { "?" })
 
-        textView.append("\nProcessed data\n")
+        textView.append("\n\nProcessed data\n\n")
         textView.append("\nOne UI: ${isOneUI()}")
-        textView.append("\nSamsung Experience: ${isSamsungExperience()}")
+        textView.append("\nSamsung Experience: ${isSamsungExperience()}, ${hasSepFeature()}")
         textView.append("\n")
         textView.append("One UI ")
 
@@ -195,5 +212,10 @@ class MainActivity : Activity() {
         return string
     }
 
-    // TODO(iFarbod): check com.samsung.feature.samsung_experience_mobile and com.samsung.feature.samsung_experience_mobile_lite
+    private fun hasSepFeature(): Boolean {
+        return getPackageManager().hasSystemFeature("com.samsung.feature.samsung_experience_mobile") ||
+                getPackageManager()
+                        .hasSystemFeature("com.samsung.feature.samsung_experience_mobile_lite")
+    }
+
 }
