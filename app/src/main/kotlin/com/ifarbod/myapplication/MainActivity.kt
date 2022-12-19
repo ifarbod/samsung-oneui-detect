@@ -1,5 +1,6 @@
 package com.ifarbod.myapplication
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
@@ -22,6 +23,7 @@ class MainActivity : Activity()
 
     private lateinit var textView: TextView
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
