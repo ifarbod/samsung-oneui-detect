@@ -6,10 +6,10 @@ plugins {
 }
 
 android {
-    namespace = "com.ifarbod.myapplication"
+    namespace = "com.ifarbod.oneui_detect"
     compileSdk = 33
     defaultConfig {
-        applicationId = "com.ifarbod.myapplication"
+        applicationId = "com.ifarbod.oneui_detect"
         minSdk = 16
         targetSdk = 33
         versionCode = 1

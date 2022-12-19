@@ -7,7 +7,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         tools:targetApi="33">
-        <activity android:name=".MainActivity"
+        <activity android:name="com.ifarbod.oneui_detect.MainActivity"
             android:label="@string/app_name"
             android:exported="true">
             <intent-filter>

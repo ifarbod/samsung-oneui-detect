@@ -1,9 +1,10 @@
-package com.ifarbod.myapplication
+package com.ifarbod.oneui_detect
 
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
 import android.widget.TextView
@@ -72,12 +73,29 @@ class MainActivity : Activity()
         textView.append(getProp("ro.build.version.sem")?.ifBlank { "?" })
         textView.append("\nSEP: ")
         textView.append(getProp("ro.build.version.sep")?.ifBlank { "?" })
-        textView.append("\nOne UI: ")
+        textView.append("\nOne UI (for 3.1.1+): ")
         textView.append(getProp("ro.build.version.oneui")?.ifBlank { "?" })
         textView.append("\nSEP category: ")
         textView.append(getFloatingFeature("SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY").ifBlank { "?" })
+        textView.append("\nSEP lite feature: ")
+        textView.append("${hasSepLiteFeature()}")
         textView.append("\nBranding name: ")
         textView.append(getFloatingFeature("SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME").ifBlank { "?" })
+
+        textView.append("\nBranding name (CSC): ")
+        textView.append(getCscFeature("CscFeature_Common_ConfigDevBrandName").ifBlank { "?" })
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+        {
+            try
+            {
+                textView.append("\nBranding name (Settings.Global): ")
+                textView.append(Settings.Global.getString(contentResolver, "default_device_name").ifBlank { "?" })
+            }
+            catch (_: Exception)
+            {
+            }
+        }
 
         textView.append("\n\nProcessed data\n\n")
         textView.append("\nOne UI: ${isOneUI()}")
@@ -112,16 +130,13 @@ class MainActivity : Activity()
         }
         finally
         {
-            if (input != null)
+            try
             {
-                try
-                {
-                    input.close()
-                }
-                catch (e: IOException)
-                {
-                    e.printStackTrace()
-                }
+                input?.close()
+            }
+            catch (e: IOException)
+            {
+                e.printStackTrace()
             }
         }
         return line
@@ -154,7 +169,7 @@ class MainActivity : Activity()
             val f: Field = Build.VERSION::class.java.getDeclaredField("SEM_PLATFORM_INT")
             f.isAccessible = true
             val semPlatformInt = f.get(null) as Int
-            if (semPlatformInt < 100000)
+            if (semPlatformInt < 100_000)
             {
                 // Samsung Experience then
                 return true
@@ -225,6 +240,21 @@ class MainActivity : Activity()
         return oneui.toInt()
     }
 
+    private fun getCscFeature(feature: String): String
+    {
+        val semFloatingFeatureClass = Class.forName("com.samsung.android.feature.SemCscFeature")
+        val getInstance = semFloatingFeatureClass.getMethod("getInstance")
+        val instance = getInstance.invoke(null)
+        // hidden_getString on Q+, getString otherwise
+        val getString = semFloatingFeatureClass.getMethod(
+            "getString", String::class.java
+        )
+
+        return getString.invoke(
+            instance, feature
+        ) as String
+    }
+
     private fun getFloatingFeature(feature: String): String
     {
         val semFloatingFeatureClass = Class.forName("com.samsung.android.feature.SemFloatingFeature")
@@ -247,4 +277,10 @@ class MainActivity : Activity()
         )
     }
 
+    private fun hasSepLiteFeature(): Boolean
+    {
+        return packageManager.hasSystemFeature(
+            "com.samsung.feature.samsung_experience_mobile_lite"
+        )
+    }
 }
