@@ -13,6 +13,25 @@ import java.lang.reflect.Field
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
+@OptIn(ExperimentalContracts::class)
+inline fun <R> tryOrNull(block: () -> R): R?
+{
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    return try
+    {
+        block()
+    }
+    catch (_: Throwable)
+    {
+        null
+    }
+}
 
 class MainActivity : Activity()
 {
@@ -87,14 +106,19 @@ class MainActivity : Activity()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
         {
-            try
+            textView.append("\nBranding name (Settings.Global): ")
+            textView.append(tryOrNull {
+                Settings.Global.getString(
+                    contentResolver,
+                    "default_device_name"
+                )
+            } ?: "?")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1)
             {
-                textView.append("\nBranding name (Settings.Global): ")
-                textView.append(Settings.Global.getString(contentResolver, "default_device_name").ifBlank { "?" })
-            }
-            catch (e: Exception)
-            {
-                e.printStackTrace()
+                textView.append("\nN MR1: ")
+                textView.append(
+                    tryOrNull { Settings.Global.getString(contentResolver, Settings.Global.DEVICE_NAME) }
+                        ?: "?")
             }
         }
 
