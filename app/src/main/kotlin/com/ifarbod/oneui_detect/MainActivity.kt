@@ -92,8 +92,9 @@ class MainActivity : Activity()
                 textView.append("\nBranding name (Settings.Global): ")
                 textView.append(Settings.Global.getString(contentResolver, "default_device_name").ifBlank { "?" })
             }
-            catch (_: Exception)
+            catch (e: Exception)
             {
+                e.printStackTrace()
             }
         }
 
