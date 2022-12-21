@@ -96,8 +96,8 @@ class MainActivity : Activity()
         textView.append(getProp("ro.build.version.oneui")?.ifBlank { "?" })
         textView.append("\nSEP category: ")
         textView.append(getFloatingFeature("SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY").ifBlank { "?" })
-        textView.append("\nSEP lite feature: ")
-        textView.append("${hasSepLiteFeature()}")
+        textView.append("\nNotch config: ")
+        textView.append(getFloatingFeature("SEC_FLOATING_FEATURE_LOCKSCREEN_CONFIG_PUNCHHOLE_VI").ifBlank { "?" })
         textView.append("\nBranding name: ")
         textView.append(getFloatingFeature("SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME").ifBlank { "?" })
 
@@ -109,22 +109,21 @@ class MainActivity : Activity()
             textView.append("\nBranding name (Settings.Global): ")
             textView.append(tryOrNull {
                 Settings.Global.getString(
-                    contentResolver,
-                    "default_device_name"
+                    contentResolver, "default_device_name"
                 )
             } ?: "?")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1)
             {
                 textView.append("\nN MR1: ")
-                textView.append(
-                    tryOrNull { Settings.Global.getString(contentResolver, Settings.Global.DEVICE_NAME) }
-                        ?: "?")
+                textView.append(tryOrNull { Settings.Global.getString(contentResolver, Settings.Global.DEVICE_NAME) }
+                    ?: "?")
             }
         }
 
         textView.append("\n\nProcessed data\n\n")
         textView.append("\nOne UI: ${isOneUI()}")
-        textView.append("\nSamsung Experience: ${isSamsungExperience()}, ${hasSepFeature()}")
+        textView.append("\nNotch type: ${parseNotchConfig(tryOrNull { getFloatingFeature("SEC_FLOATING_FEATURE_LOCKSCREEN_CONFIG_PUNCHHOLE_VI") } ?: "?")}")
+        textView.append("\nSamsung Experience: ${isSamsungExperience()}, feat: ${hasSepFeature()}, lite: ${hasSepLiteFeature()}")
         textView.append("\n")
         textView.append("One UI ")
 
@@ -165,6 +164,28 @@ class MainActivity : Activity()
             }
         }
         return line
+    }
+
+    private fun parseNotchConfig(config: String): String
+    {
+        // ucut: Infinity-U
+        // vcut: Infinity-V, A03s, M12
+        // circle: Infinity-O, A21s
+        // infinity-ucut: A22
+        // infinity-vcut: ?
+        // b1: S10 (beyond)
+        // b2: S10+
+        // bx: S10 5G
+        return when (config.substringAfter("type:"))
+        {
+            "ucut", "infinity-ucut" -> "Infinity-U"
+            "vcut", "infinity-vcut" -> "Infinity-V"
+            "b1" -> "S10"
+            "b2" -> "S10+"
+            "bx" -> "S10 5G"
+            "circle" -> "Infinity-O"
+            else -> "Unknown"
+        }
     }
 
     private fun isOneUI(): Boolean
@@ -209,7 +230,9 @@ class MainActivity : Activity()
 
     private fun isOneUiCore(): Boolean
     {
-        return getFloatingFeature("SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY") == "sep_lite_new"
+        return getFloatingFeature("SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY") == "sep_lite" || getFloatingFeature(
+            "SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY"
+        ) == "sep_lite_new"
     }
 
     private fun getOneUiVersion(): Int
