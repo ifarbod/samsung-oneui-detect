@@ -290,32 +290,46 @@ class MainActivity : Activity()
 
     private fun getCscFeature(feature: String): String
     {
-        val semFloatingFeatureClass = Class.forName("com.samsung.android.feature.SemCscFeature")
-        val getInstance = semFloatingFeatureClass.getMethod("getInstance")
-        val instance = getInstance.invoke(null)
-        // hidden_getString on Q+, getString otherwise
-        val getString = semFloatingFeatureClass.getMethod(
-            "getString", String::class.java
-        )
+        try
+        {
+            val semFloatingFeatureClass = Class.forName("com.samsung.android.feature.SemCscFeature")
+            val getInstance = semFloatingFeatureClass.getMethod("getInstance")
+            val instance = getInstance.invoke(null)
+            // hidden_getString on Q+, getString otherwise
+            val getString = semFloatingFeatureClass.getMethod(
+                "getString", String::class.java
+            )
 
-        return getString.invoke(
-            instance, feature
-        ) as String
+            return getString.invoke(
+                instance, feature
+            ) as String
+        }
+        catch (e: Exception)
+        {
+            return ""
+        }
     }
 
     private fun getFloatingFeature(feature: String): String
     {
-        val semFloatingFeatureClass = Class.forName("com.samsung.android.feature.SemFloatingFeature")
-        val getInstance = semFloatingFeatureClass.getMethod("getInstance")
-        val instance = getInstance.invoke(null)
-        // hidden_getString on Q+, getString otherwise
-        val getString = semFloatingFeatureClass.getMethod(
-            "getString", String::class.java
-        )
+        try
+        {
+            val semFloatingFeatureClass = Class.forName("com.samsung.android.feature.SemFloatingFeature")
+            val getInstance = semFloatingFeatureClass.getMethod("getInstance")
+            val instance = getInstance.invoke(null)
+            // hidden_getString on Q+, getString otherwise
+            val getString = semFloatingFeatureClass.getMethod(
+                "getString", String::class.java
+            )
 
-        return getString.invoke(
-            instance, feature
-        ) as String
+            return getString.invoke(
+                instance, feature
+            ) as String
+        }
+        catch (e: Exception)
+        {
+            return ""
+        }
     }
 
     private fun hasSepFeature(): Boolean
