@@ -8,6 +8,9 @@ plugins {
 android {
     namespace = "com.ifarbod.oneui_detect"
     compileSdk = 33
+    buildToolsVersion = "33.0.1"
+    ndkVersion = "25.1.8937393"
+
     defaultConfig {
         applicationId = "com.ifarbod.oneui_detect"
         minSdk = 16
