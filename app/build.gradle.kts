@@ -43,6 +43,33 @@ android {
         freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
     }
 
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
+    buildFeatures {
+        //viewBinding = true
+        //compose = true
+
+        // Disable some unused things
+        aidl = false
+        renderScript = false
+        shaders = false
+    }
+
+    packagingOptions {
+        resources.excludes += listOf(
+            "**/*.kotlin_module",
+            "**/*.version",
+            "**/kotlin/**",
+            "**/*.txt",
+            "**/*.xml",
+            "**/*.properties",
+            "DebugProbesKt.bin",
+            "kotlin-tooling-metadata.json"
+        )
+    }
 }
 
 dependencies {
