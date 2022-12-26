@@ -38,7 +38,11 @@ android {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
-    kotlinOptions { jvmTarget = javaVersion.toString() }
+    kotlinOptions {
+        jvmTarget = javaVersion.toString()
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    }
+
 }
 
 dependencies {
