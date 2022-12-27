@@ -40,7 +40,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = javaVersion.toString()
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+        freeCompilerArgs = freeCompilerArgs + "-opt-in=kotlin.RequiresOptIn"
     }
 
     dependenciesInfo {
