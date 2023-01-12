@@ -64,24 +64,7 @@ class MainActivity : Activity()
     {
         textView.text = null
 
-        // ro.build.version.release_or_preview_display (13+)
-        // ro.build.version.release_or_codename (11+)
-        // check codename, if REL => stable
-        val release = if (getProp("ro.build.version.release_or_preview_display").isNullOrBlank())
-        {
-            if (getProp("ro.build.version.release_or_codename").isNullOrBlank())
-            {
-                getProp("ro.build.version.release")
-            }
-            else
-            {
-                getProp("ro.build.version.release_or_codename")
-            }
-        }
-        else
-        {
-            getProp("ro.build.version.release_or_preview_display")
-        }
+        val release = getAndroidReleaseString()
         val sdk = getProp("ro.build.version.sdk")?.ifBlank { "?" }
 
         textView.append("Raw data\n\n")
@@ -134,6 +117,28 @@ class MainActivity : Activity()
 
         textView.append(parseOneUiVersion())
         textView.append("\n")
+    }
+
+    private fun getAndroidReleaseString(): String?
+    {
+        // ro.build.version.release_or_preview_display (13+)
+        // ro.build.version.release_or_codename (11+)
+        // check codename, if REL => stable
+        return if (getProp("ro.build.version.release_or_preview_display").isNullOrBlank())
+        {
+            if (getProp("ro.build.version.release_or_codename").isNullOrBlank())
+            {
+                getProp("ro.build.version.release")
+            }
+            else
+            {
+                getProp("ro.build.version.release_or_codename")
+            }
+        }
+        else
+        {
+            getProp("ro.build.version.release_or_preview_display")
+        }
     }
 
     private fun getProp(name: String): String?
